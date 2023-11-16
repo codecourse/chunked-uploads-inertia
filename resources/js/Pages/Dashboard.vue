@@ -2,7 +2,7 @@
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, usePage } from '@inertiajs/vue3';
-import { reactive, ref } from 'vue'
+import { reactive, ref, computed } from 'vue'
 import { createUpload } from '@mux/upchunk'
 
 defineProps({
@@ -13,7 +13,10 @@ const file = ref(null)
 
 const state = reactive({
     file: null,
-    uploader: null
+    uploader: null,
+    progress: 0,
+    uploading: false,
+    formattedProgress: computed(() => Math.round(state.progress))
 })
 
 const submit = () => {
@@ -32,6 +35,14 @@ const submit = () => {
         file: state.file,
         chunkSize: 10 * 1024 // 10mb
     })
+
+    state.uploader.on('attempt', (p) => {
+        state.uploading = true
+    })
+
+    state.uploader.on('progress', (p) => {
+        state.progress = p.detail
+    })
 }
 </script>
 
@@ -46,12 +57,27 @@ const submit = () => {
         <div class="py-12">
             <div class="max-w-3xl mx-auto sm:px-6 lg:px-8 space-y-3">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <form class="p-6 text-gray-900" v-on:submit.prevent="submit">
+                    <form class="p-6 text-gray-900 space-y-6" v-on:submit.prevent="submit">
                         <div class="flex items-center">
                             <input type="file" name="file" ref="file" class="flex-grow">
                             <PrimaryButton>
                                 Upload
                             </PrimaryButton>
+                        </div>
+
+                        <div v-if="state.uploading" class="space-y-2">
+                            <div class="bg-gray-100 shadow-inner h-3 rounded overflow-hidden">
+                                <div class="bg-blue-500 h-full transition-all duration-200" v-bind:style="{ width: state.progress + '%' }"></div>
+                            </div>
+
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    buttons
+                                </div>
+                                <div class="text-sm">
+                                    {{ state.formattedProgress }}%
+                                </div>
+                            </div>
                         </div>
                     </form>
                 </div>
