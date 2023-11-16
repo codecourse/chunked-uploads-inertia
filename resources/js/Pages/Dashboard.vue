@@ -1,8 +1,9 @@
 <script setup>
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
 import { reactive, ref } from 'vue'
+import { createUpload } from '@mux/upchunk'
 
 defineProps({
     files: Array
@@ -11,7 +12,8 @@ defineProps({
 const file = ref(null)
 
 const state = reactive({
-    file: null
+    file: null,
+    uploader: null
 })
 
 const submit = () => {
@@ -21,7 +23,15 @@ const submit = () => {
         return
     }
 
-    console.log('start upload')
+    state.uploader = createUpload({
+        endpoint: route('files.store'),
+        headers: {
+            'X-CSRF-TOKEN': usePage().props.csrf_token
+        },
+        method: 'post',
+        file: state.file,
+        chunkSize: 10 * 1024 // 10mb
+    })
 }
 </script>
 
