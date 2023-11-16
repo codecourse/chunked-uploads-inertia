@@ -1,7 +1,7 @@
 <script setup>
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, usePage } from '@inertiajs/vue3';
+import { Head, router, usePage } from '@inertiajs/vue3';
 import { reactive, ref, computed } from 'vue'
 import { createUpload } from '@mux/upchunk'
 
@@ -11,12 +11,19 @@ defineProps({
 
 const file = ref(null)
 
-const state = reactive({
+const initialState = {
     file: null,
     uploader: null,
     progress: 0,
     uploading: false,
-    formattedProgress: computed(() => Math.round(state.progress))
+}
+
+const state = reactive({
+    ...initialState,
+    formattedProgress: computed(() => Math.round(state.progress)),
+    reset: () => {
+        Object.assign(state, initialState)
+    }
 })
 
 const submit = () => {
@@ -36,12 +43,21 @@ const submit = () => {
         chunkSize: 10 * 1024 // 10mb
     })
 
-    state.uploader.on('attempt', (p) => {
+    state.uploader.on('attempt', () => {
         state.uploading = true
     })
 
     state.uploader.on('progress', (p) => {
         state.progress = p.detail
+    })
+
+    state.uploader.on('success', () => {
+        state.reset()
+
+        router.reload({
+            only: ['files'],
+            preserveScroll: true
+        })
     })
 }
 </script>
