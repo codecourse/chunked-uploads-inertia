@@ -26,6 +26,11 @@ const state = reactive({
     }
 })
 
+const cancel = () => {
+    state.uploader.abort()
+    state.reset()
+}
+
 const submit = () => {
     state.file = file.value.files[0]
 
@@ -87,8 +92,8 @@ const submit = () => {
                             </div>
 
                             <div class="flex items-center justify-between">
-                                <div>
-                                    buttons
+                                <div class="flex items-center space-x-2">
+                                    <button class="text-sm text-indigo-500" v-on:click="cancel">Cancel</button>
                                 </div>
                                 <div class="text-sm">
                                     {{ state.formattedProgress }}%
