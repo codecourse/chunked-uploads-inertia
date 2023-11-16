@@ -93,6 +93,9 @@ const submit = () => {
 
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center space-x-2">
+                                    <button class="text-sm text-indigo-500" v-if="!state.uploader.paused" v-on:click="state.uploader.pause()">Pause</button>
+                                    <button class="text-sm text-indigo-500" v-if="state.uploader.paused" v-on:click="state.uploader.resume()">Resume</button>
+
                                     <button class="text-sm text-indigo-500" v-on:click="cancel">Cancel</button>
                                 </div>
                                 <div class="text-sm">
