@@ -16,6 +16,7 @@ const initialState = {
     uploader: null,
     progress: 0,
     uploading: false,
+    error: null,
 }
 
 const state = reactive({
@@ -49,6 +50,7 @@ const submit = () => {
     })
 
     state.uploader.on('attempt', () => {
+        state.error = null
         state.uploading = true
     })
 
@@ -63,6 +65,10 @@ const submit = () => {
             only: ['files'],
             preserveScroll: true
         })
+    })
+
+    state.uploader.on('error', (error) => {
+        state.error = error.detail.message
     })
 }
 </script>
@@ -101,6 +107,10 @@ const submit = () => {
                                 <div class="text-sm">
                                     {{ state.formattedProgress }}%
                                 </div>
+                            </div>
+
+                            <div v-if="state.error" class="text-sm">
+                                {{ state.error }}
                             </div>
                         </div>
                     </form>
